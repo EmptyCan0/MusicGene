@@ -246,7 +246,3 @@ def run_flask():
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()
 
-    # Streamlit app code here
-    import streamlit as st
-    st.title("Streamlit with Flask")
-    st.write("This is a Streamlit app with Flask running in the background.")
