@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file
 from pydub import AudioSegment
 import os
+import threading
 
 Music_Genre = "東方Project"
 Music_Name = "今宵は飄逸なエゴイスト"
@@ -239,5 +240,13 @@ def GiveProgressNumber():
 ############### 音声の生成系の部分 ################
 ##################################################
 
+def run_flask():
+    app.run(debug=True, use_reloader=False)
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    threading.Thread(target=run_flask).start()
+
+    # Streamlit app code here
+    import streamlit as st
+    st.title("Streamlit with Flask")
+    st.write("This is a Streamlit app with Flask running in the background.")
