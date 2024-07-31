@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ファイルアップロード</title>
+    <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <img src="{{ url_for('static', filename='samune.png') }}" alt="Sample Image" class="header-image">
+        </div>
+        <div>
+            <div class="list-box">
+                <div class="explain_text">曲のジャンル：</div>
+                <select onclick="WhenMusicGenreSelected()" id='Music_genre' class='list_text'>
+                    <option value="東方Project" selected>東方Project</option>
+                    <option value="FFシリーズ">FFシリーズ</option>
+                    <option value="3">Option 3</option>
+                </select>
+
+                <div class="explain_text">曲名：</div>
+                <select onclick="WhenMusicNameSelected()" id='Music_name' class='list_text'>
+                    <option value="--">--</option>
+                </select>
+
+                <script src="static/script.js"></script>
+        </div>
+        <!--
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="file-input-wrapper">
+                <button class="btn-file">音声ファイルを選択</button>
+                <input type="file" id="audioFile" name="audioFile" class="file-input" accept="audio/*">
+                <button type="submit" class="btn-submit">サンプル音声を生成</button>
+            </div>    
+        </form>
+    
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <label for="audioFile">Choose an audio file:</label>
+            <input type="file" id="audioFile" name="audioFile" accept="audio/*">
+            <button type="submit">Upload</button>
+        </form>
+        -->
+        <div class="upload-container">
+            <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+                <button onclick="ApploadButtonPushed()" type="submit">Upload</button>
+            </form>
+        </div>
+
+            <!-- モーダルの構造 -->
+        <div id="Modal_wait" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick=" CloseModal('Modal_wait')">&times;</span>
+                <div class="modal-header">音声を生成しています。しばらくお待ちください。</div>
+                <div class="loading_var">
+                    <div class="loading_progress"></div>
+                </div>
+            </div>
+            <script src="static/script.js"></script>
+        </div>
+        <div id="SampleCheck" class="modal">
+            <div class="modal-content-large">
+                <span class="close" onclick=" CloseModal('SampleCheck')">&times;</span>
+                <div class="modal-header">サンプル音声を確認してください</div>
+                <div>
+                    <audio id="sample-music" controls src="{{ url_for('get_file', filename='sound.wav') }}"></audio>
+                </div>
+                <div class="modal-header2">音の高さは問題ありませんか？</div>
+                <div class="modal-explain">※下記の数字でピッチを変更できます ( 上限:-20, 下限:20 )</div>
+
+                <input type="range" id="gearSlider" min="-20" max="20" value="0" oninput="updateGear(this.value)">
+                <div class="gears">
+                    <span id="gearValue">0</span>
+                </div>
+
+            
+                <button id="regene" class="btn-file"  >サンプル音声を生成しなおす</button>
+                <button id="gene" class="btn-submit">曲全体の音声を生成</button>
+                <script src="static/script.js"></script>
+            
+            </div>
+        </div>
+        <div id="MusicCheck" class="modal">
+            <div class="modal-content-large">
+                <span class="close" onclick=" CloseModal('MusicCheck')">&times;</span>
+                <div class="modal-header">音声の生成が完了しました</div>
+                <div>
+                    <audio id="all-music" controls src="{{ url_for('get_file', filename='sound.wav') }}"></audio>
+                </div>
+
+                <button id="DL" class="btn-submit">音声をダウンロード</button>
+                <script src="static/script.js"></script>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
