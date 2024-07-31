@@ -73,37 +73,6 @@ def SerchMaxCount(filename):
     global MaxCount
     MaxCount = count
     print(MaxCount)
-    
-
-@app.route('/get_options', methods=['GET'])
-def get_options():
-    # バックエンドから送信するリストボックスの新しいオプション
-    if Music_Genre == "東方Project":
-        options = [
-            {"value": "ナイトオブナイツ", "text": "ナイトオブナイツ"},
-            {"value": "最終鬼畜妹フランドール・S", "text": "最終鬼畜妹フランドール・S"},
-            {"value": "亡き王女の為のセプテット", "text": "亡き王女の為のセプテット"},
-            {"value": "ネイティブフェイス", "text": "ネイティブフェイス"},
-            {"value": "恋色マスタースパーク", "text": "恋色マスタースパーク"},
-            {"value": "いざ、倒れ逝くその時まで", "text": "いざ、倒れ逝くその時まで"},
-            {"value": "今宵は飄逸なエゴイスト", "text": "今宵は飄逸なエゴイスト"}
-        ]
-    elif Music_Genre == "FFシリーズ":
-        options = [
-        {"value": "ビッグブリッジの死闘", "text": "ビッグブリッジの死闘"},
-        {"value": "new_option2", "text": "新しいオプション2"},
-        {"value": "new_option3", "text": "新しいオプション3"}
-    ]
-    else:
-        
-        options = [
-            {"value": "new_option1", "text": "新しいオプション1"},
-            {"value": "new_option2", "text": "新しいオプション2"},
-            {"value": "new_option3", "text": "新しいオプション3"}
-        ]
-        print(type(options[0]))
-    
-    return jsonify(options)
 
 #ギアの値（ピッチ)を取得
 @app.route('/update_gear', methods=['POST'])
@@ -123,6 +92,31 @@ SoundPitch = 39
 ##################################################
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+
+    # ファイル名を取得
+    filename = file.filename
+    #print(f"Received file: {filename}")
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    global Sound_Path
+    Sound_Path = file_path
+    file.save(file_path)
+    # 音声ファイルの編集
+    edited_file_path = generate_music(file_path)
+    # ファイルを保存する場合（ここでは保存先を指定していますが、必要に応じて変更してください）
+    # file.save(f"/path/to/save/{filename}")
+
+    return jsonify({"file_path": edited_file_path})
+
+"""
+@app.route('/upload', methods=['POST'])
+def upload_file():
     if 'audioFile' not in request.files:
         return redirect(request.url)
     file = request.files['audioFile']
@@ -138,7 +132,7 @@ def upload_file():
         edited_file_path = generate_music(file_path)
         return edited_file_path
         return "", 204 
-
+"""
 @app.route('/regenerate', methods=['POST'])
 def Regenerate():
     global Sound_Path

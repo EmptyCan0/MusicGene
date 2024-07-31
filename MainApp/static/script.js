@@ -1,16 +1,35 @@
-document.getElementById('uploadForm').onsubmit = async function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-    const response = await fetch('/upload', {
-      method: 'POST',
-      body: formData
+//アップロードボタンが押されたとき
+document.addEventListener('DOMContentLoaded', function() {
+
+    const uploadForm = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('audioFile');
+
+    uploadForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const file = fileInput.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data.file_path);
+                //サンプル音声として生成したpathに置き換える
+                document.getElementById("sample-music").src = `${data.file_path}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        } else {
+            console.error('No file selected');
+        }
     });
-    const filename = await response.text();
-    console.log(filename)
-    if (filename) {
-      document.getElementById("sample-music").src = `${filename}`;
-    }
-}
+});
+  
 
 //再度音声を生成
 document.getElementById('regene').onclick =  async function() {
@@ -46,24 +65,6 @@ document.getElementById('gene').onclick =  async function() {
     }
 }
 
-function WhenMusicGenreSelected() {
-    var selectBox = document.getElementById("Music_genre");
-    var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-
-    fetch('/submit', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ selectedValue: selectedValue })
-    })
-    .then(response => response.json())
-    .then(data => {
-        updateSelectBox();
-    });
-}
-
-
 function WhenMusicNameSelected() {
     var selectBox1 = document.getElementById("Music_name");
     console.log(selectBox1.selectedIndex)
@@ -85,23 +86,61 @@ function WhenMusicNameSelected() {
     });
 }
 
-//リストボックスの中身を変更
-function updateSelectBox() {
-    fetch('/get_options')
-        .then(response => response.json())
-        .then(options => {
-            var selectBox = document.getElementById("Music_name");
-            selectBox.innerHTML = ''; // 現在のオプションをクリア
-            options.forEach(option => {
-                var newOption = document.createElement("option");
-                newOption.value = option.value;
-                newOption.text = option.text;
-                selectBox.add(newOption);
-                WhenMusicNameSelected();
-            });
-        });
-}
+//リストボックスの中身を変更(初期)
+document.addEventListener('DOMContentLoaded', function() {
+    const listbox_music_genre = document.getElementById('Music_genre');
 
+    // 既存のオプションをクリア
+    listbox_music_genre.innerHTML = '';
+
+    // 新しいオプションを追加
+    const genre_options = [
+        { value: '東方Project', text: '東方Project' },
+        { value: 'FFシリーズ', text: 'FFシリーズ' },
+        { value: '3', text: 'Option 3' }
+    ];
+
+    genre_options.forEach(option => {
+        const new_option = document.createElement('option');
+        new_option.value = option.value;
+        new_option.textContent = option.text;
+        listbox_music_genre.appendChild(new_option);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const listbox_music_genre = document.getElementById('Music_genre');
+    const listbox_music_name = document.getElementById('Music_name');
+
+    listbox_music_genre.addEventListener('change', function(){
+        const select_genre = listbox_music_genre.value;
+        let music_name_option = [];
+        if (select_genre == '東方Project'){
+            music_name_option = [
+                { value: "ナイトオブナイツ", text: "ナイトオブナイツ"},
+                { value: "最終鬼畜妹フランドール・S", text: "最終鬼畜妹フランドール・S"},
+                { value: "亡き王女の為のセプテット", text: "亡き王女の為のセプテット"},
+                { value: "ネイティブフェイス", text: "ネイティブフェイス"},
+                { value: "恋色マスタースパーク", text: "恋色マスタースパーク"},
+                { value: "いざ、倒れ逝くその時まで", text: "いざ、倒れ逝くその時まで"},
+                { value: "今宵は飄逸なエゴイスト", text: "今宵は飄逸なエゴイスト"}
+            ];
+        }
+        else if (select_genre == 'FFシリーズ'){
+            music_name_option = [
+                { value: "ビッグブリッジの死闘", text: "ビッグブリッジの死闘"},
+            ];
+        }
+        //リストボックスの更新
+        listbox_music_name.innerHTML = '';
+        music_name_option.forEach(option => {
+            const new_option = document.createElement('option');
+            new_option.value = option.value;
+            new_option.textContent = option.text;
+            listbox_music_name.appendChild(new_option);
+        });
+    });
+});
 
 //-----------------------------------------------------------//
 //------------モーデルの操作----------------------------------//

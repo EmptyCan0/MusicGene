@@ -15,10 +15,8 @@
         <div>
             <div class="list-box">
                 <div class="explain_text">曲のジャンル：</div>
-                <select onclick="WhenMusicGenreSelected()" id='Music_genre' class='list_text'>
-                    <option value="東方Project" selected>東方Project</option>
-                    <option value="FFシリーズ">FFシリーズ</option>
-                    <option value="3">Option 3</option>
+                <select id='Music_genre' class='list_text'>
+                    <option value="--" selected>曲のジャンルを選択してください</option>
                 </select>
 
                 <div class="explain_text">曲名：</div>
@@ -28,26 +26,13 @@
 
                 <script src="static/script.js"></script>
         </div>
-        <!--
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <div class="file-input-wrapper">
-                <button class="btn-file">音声ファイルを選択</button>
-                <input type="file" id="audioFile" name="audioFile" class="file-input" accept="audio/*">
-                <button type="submit" class="btn-submit">サンプル音声を生成</button>
-            </div>    
-        </form>
-    
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <label for="audioFile">Choose an audio file:</label>
-            <input type="file" id="audioFile" name="audioFile" accept="audio/*">
-            <button type="submit">Upload</button>
-        </form>
-        -->
+
         <div class="upload-container">
             <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
                 <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
                 <button onclick="ApploadButtonPushed()" type="submit">Upload</button>
             </form>
+            <script src="static/script.js"></script>
         </div>
 
             <!-- モーダルの構造 -->
