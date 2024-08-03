@@ -1,5 +1,4 @@
 import librosa
-import librosa.display
 import soundfile as sf
 import matplotlib.pyplot as plt
 import numpy as np
@@ -98,10 +97,3 @@ split_wav_by_ranges(y = y , sr = sr , peak_times = peak_time)
 #＝＝＝＝＝＝＝＝＝＝＝＝＝音声を分割している重要な部分＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 
 
-# 音声信号の波形をプロット
-plt.figure(figsize=(14, 5))
-plt.plot(time, y_average)
-plt.title('Waveform (Absolute Values)')
-plt.xlabel('Time (seconds)')
-plt.ylabel('Amplitude')
-plt.show()
