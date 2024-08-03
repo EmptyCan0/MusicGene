@@ -1,36 +1,21 @@
 import librosa
-import librosa.display
-import matplotlib.pyplot as plt
-import numpy as np
+import soundfile as sf
+import io
 
+# 音声ファイルをバイナリデータとして読み込む
+with open("sample.wav", "rb") as f:
+    audio_data = f.read()
 
-# 配列をある数の要素ごとに平均値を計算
-def average_block(arr, block_size):
-    #100個の要素数の場合、reshape(-1, 5)により、形状が (20, 5) になる
-    return arr.reshape(-1, block_size).mean(axis=1) #axix=1によって上の20の要素（列）を取得
+# バイナリデータをBytesIOオブジェクトに変換
+audio_file = io.BytesIO(audio_data)
 
+# BytesIOオブジェクトをlibrosaで読み込むためにsoundfileを使用
+y, sr = sf.read(audio_file, dtype='float32')
 
-# 音声ファイルの読み込み
-y, sr = librosa.load("sample.wav")
+# 必要に応じてlibrosaで使用可能な形式に変換（リサンプリング）
+target_sr = 22050
+y_resampled = librosa.resample(y.T, orig_sr=sr, target_sr=target_sr)
 
-print(len(y))
+print("音声データの形状:", y_resampled.shape)
+print("サンプリングレート:", target_sr)
 
-# サンプル値の絶対値を取得
-reduce_number = 50
-y_reduced =np.abs(y[::reduce_number])
-
-print(len(y_reduced))
-
-block_number = 10
-y_average = average_block(y_reduced,block_number)
-time = reduce_number * block_number * np.arange(len(y_average)) / sr 
-
-print(np.mean(y_average))
-
-# 音声信号の波形をプロット
-plt.figure(figsize=(14, 5))
-plt.plot(time, y_average)
-plt.title('Waveform (Absolute Values)')
-plt.xlabel('Time (seconds)')
-plt.ylabel('Amplitude')
-plt.show()
