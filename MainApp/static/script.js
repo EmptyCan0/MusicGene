@@ -1,6 +1,5 @@
 //アップロードボタンが押されたとき
 document.addEventListener('DOMContentLoaded', function() {
-
     const uploadForm = document.getElementById('uploadForm');
     const fileInput = document.getElementById('audioFile');
 
@@ -15,11 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data.file_path);
-                //サンプル音声として生成したpathに置き換える
-                document.getElementById("sample-music").src = `${data.file_path}`;
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const audioPlayer = document.getElementById('sample-music');
+                audioPlayer.src = url;
+                //audioPlayer.play();
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-  
 
 //再度音声を生成
 document.getElementById('regene').onclick =  async function() {
