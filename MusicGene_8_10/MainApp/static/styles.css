@@ -1,0 +1,249 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.container{
+    
+    width: 100%;
+    max-width: 1000px; /* Optional: to limit the max width of the container */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.header{
+    background-color: rgb(170, 235, 247);
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header-image {
+    width: 100%;
+    height: auto;
+}
+
+/*説明文のスタイル*/
+.explain_text{
+   font-size: 20px;
+   padding-left: 20px;
+}
+
+/* リストボックスのスタイル */
+.list-box {
+    background-color: rgb(187, 187, 187);
+    padding: 30px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.list_text{
+    font-family: "游明朝体", "Yu Mincho", YuMincho, "ヒラギノ明朝 Pro", "Hiragino Mincho Pro", "MS P明朝", "MS PMincho", serif;
+    font-size: 20px;
+}
+
+
+/* フォームのスタイル */
+form {
+    display:  flex;
+    justify-content: center;
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ffffff;
+    border-radius: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ファイル入力のカスタマイズ */
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.file-input {
+    margin: 10px;
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
+.btn-file {
+    border: 2px solid #007BFF;
+    color: white;
+    background-color: #007BFF;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-file:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* 送信ボタンのスタイル */
+.btn-submit {
+    margin: 10px;
+    border: 2px solid #28a745;
+    color: white;
+    background-color: #28a745;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background-color: #218838;
+    border-color: #218838;
+}
+
+.upload-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+
+/* ================================ */
+/* ==サンプル音声生成モーダルの内容 ==*/
+/* ================================ */
+/* モーダルの背景 */
+.modal {
+    justify-content: center;
+    display: none; /* デフォルトでは表示しない */
+    position: fixed; /* 固定位置 */
+    z-index: 1; /* 前面に表示 */
+    left: 0;
+    top: 0;
+    width: 100%; /* 全幅 */
+    height: 100%; /* 全高 */
+    overflow: auto; /* スクロール可能 */
+    background-color: rgb(0,0,0); /* 黒の背景 */
+    background-color: rgba(0,0,0,0.4); /* 透明度のある黒の背景 */
+}
+
+.modal-content {
+    text-align: center;
+    justify-content: center;
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% 上下にマージン、自動水平位置 */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* 幅の80% */
+    max-width: 800px; 
+    height: 200px;
+    border-radius: 10px;
+}
+
+.modal-content-large {
+    text-align: center;
+    justify-content: center;
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% 上下にマージン、自動水平位置 */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* 幅の80% */
+    max-width: 800px; 
+    height: 400px;
+    border-radius: 10px;
+}
+
+.modal-header{
+    height: 30px;
+    width: 100%;
+    margin-top: 30px;
+    margin-bottom: 40px;
+    font-size: 23px;
+    justify-content: center;
+    background-color: #c7e2ff;
+    font-weight: bold;
+}
+
+.modal-header2{
+    width: 800px;
+    margin-top: 40px;
+    margin-bottom: 10px;
+    font-size: 23px;
+    background-color: #c7e2ff;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.modal-explain{
+    width: 800px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    justify-content: center;
+}
+
+/* 閉じるボタン */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* ローディングバーのスタイル */
+.loading_bar {
+    width: 100%;
+    background-color: #f3f3f31b;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.loading_progress{
+    width: 0;
+    height: 20px;
+    background-color: #4caf50;
+    text-align: center;
+    line-height: 20px; /* バーの高さと一致させる */
+    color: white;
+}
+
+/*ピッチを変更したい場合*/
+#gearSlider {
+    width: 400px;
+}
+
+.gears {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    font-weight: bold;
+}
+/* ================================ */
+/* ========モーダルの内容 ==========*/
+/* ================================ */
