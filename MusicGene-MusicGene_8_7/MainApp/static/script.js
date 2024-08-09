@@ -2,15 +2,52 @@
 document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('uploadForm');
     const fileInput = document.getElementById('audioFile');
+    var sent  = false;
 
     uploadForm.addEventListener('submit', function(event) {
-        event.preventDefault();
+        if (!sent){
+            event.preventDefault();
+            const file = fileInput.files[0];
+            if (file) {
+                sent = true;
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const audioPlayer = document.getElementById('sample-music');
+                    audioPlayer.src = url;
+                    sent = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            } else {
+                console.error('No file selected');
+            }
+        }
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+//再度音声を生成
+    var sent = false;
+    document.getElementById('regene').onclick =  async function() {
+        ApploadButtonPushed();
+        const fileInput = document.getElementById('audioFile');
         const file = fileInput.files[0];
         if (file) {
+            sent = true;
             const formData = new FormData();
             formData.append('file', file);
 
-            fetch('/upload', {
+            fetch('/regenerate', {
                 method: 'POST',
                 body: formData
             })
@@ -19,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const url = URL.createObjectURL(blob);
                 const audioPlayer = document.getElementById('sample-music');
                 audioPlayer.src = url;
+                sent = false;
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -26,63 +64,40 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             console.error('No file selected');
         }
-    });
+    }
 });
-
 
 document.addEventListener('DOMContentLoaded', function() {
-//再度音声を生成
-    document.getElementById('regene').onclick =  async function() {
-        ApploadButtonPushed();
-        fetch('/regenerate', {
-            method: 'POST',
-            body: ''
-        })
-        .then(response => response.blob())
-        .then(blob => {
-            const url = URL.createObjectURL(blob);
-            const audioPlayer = document.getElementById('sample-music');
-            audioPlayer.src = url;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+    var sent = false;
+//本番の音声を生成
+    document.getElementById('gene').onclick =  async function() {
+        GenerateButtonPushed();
+        const fileInput = document.getElementById('audioFile');
+        const file = fileInput.files[0];
+        if (file) {
+            sent = true;
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/generate', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const audioPlayer = document.getElementById('all-music');
+                audioPlayer.src = url;
+                sent = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        } else {
+            console.error('No file selected');
+        }
     }
 });
-
-//再度音声を生成
-document.getElementById('regene').onclick =  async function() {
-    ApploadButtonPushed();
-    const response = await fetch('/regenerate', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({}) // 空のオブジェクトを送信
-    });
-    const filename = await response.text();
-    console.log(filename)
-    if (filename) {
-        document.getElementById("sample-music").src = `${filename}`; 
-    }
-}
-
-//本番の音声を生成
-document.getElementById('gene').onclick =  async function() {
-    GenerateButtonPushed();
-    const response = await fetch('/generate', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({}) // 空のオブジェクトを送信
-    });
-    const filename = await response.text();
-    console.log(filename)
-    if (filename) {
-        document.getElementById("all-music").src = `${filename}`; 
-    }
-}
 
 function WhenMusicNameSelected() {
     var selectBox1 = document.getElementById("Music_name");
@@ -125,39 +140,48 @@ document.addEventListener('DOMContentLoaded', function() {
         new_option.textContent = option.text;
         listbox_music_genre.appendChild(new_option);
     });
+
+    update_musicname();
+    
 });
+
+function update_musicname(){
+    const listbox_music_genre = document.getElementById('Music_genre');
+    const listbox_music_name = document.getElementById('Music_name');
+    const select_genre = listbox_music_genre.value;
+    let music_name_option = [];
+    if (select_genre == '東方Project'){
+        music_name_option = [
+            { value: "ナイトオブナイツ", text: "ナイトオブナイツ"},
+            { value: "最終鬼畜妹フランドール・S", text: "最終鬼畜妹フランドール・S"},
+            { value: "亡き王女の為のセプテット", text: "亡き王女の為のセプテット"},
+            { value: "ネイティブフェイス", text: "ネイティブフェイス"},
+            { value: "恋色マスタースパーク", text: "恋色マスタースパーク"},
+            { value: "いざ、倒れ逝くその時まで", text: "いざ、倒れ逝くその時まで"},
+            { value: "今宵は飄逸なエゴイスト", text: "今宵は飄逸なエゴイスト"}
+        ];
+    }
+    else if (select_genre == 'FFシリーズ'){
+        music_name_option = [
+            { value: "ビッグブリッジの死闘", text: "ビッグブリッジの死闘"},
+        ];
+    }
+    //リストボックスの更新
+    listbox_music_name.innerHTML = '';
+    music_name_option.forEach(option => {
+        const new_option = document.createElement('option');
+        new_option.value = option.value;
+        new_option.textContent = option.text;
+        listbox_music_name.appendChild(new_option);
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const listbox_music_genre = document.getElementById('Music_genre');
     const listbox_music_name = document.getElementById('Music_name');
 
     listbox_music_genre.addEventListener('change', function(){
-        const select_genre = listbox_music_genre.value;
-        let music_name_option = [];
-        if (select_genre == '東方Project'){
-            music_name_option = [
-                { value: "ナイトオブナイツ", text: "ナイトオブナイツ"},
-                { value: "最終鬼畜妹フランドール・S", text: "最終鬼畜妹フランドール・S"},
-                { value: "亡き王女の為のセプテット", text: "亡き王女の為のセプテット"},
-                { value: "ネイティブフェイス", text: "ネイティブフェイス"},
-                { value: "恋色マスタースパーク", text: "恋色マスタースパーク"},
-                { value: "いざ、倒れ逝くその時まで", text: "いざ、倒れ逝くその時まで"},
-                { value: "今宵は飄逸なエゴイスト", text: "今宵は飄逸なエゴイスト"}
-            ];
-        }
-        else if (select_genre == 'FFシリーズ'){
-            music_name_option = [
-                { value: "ビッグブリッジの死闘", text: "ビッグブリッジの死闘"},
-            ];
-        }
-        //リストボックスの更新
-        listbox_music_name.innerHTML = '';
-        music_name_option.forEach(option => {
-            const new_option = document.createElement('option');
-            new_option.value = option.value;
-            new_option.textContent = option.text;
-            listbox_music_name.appendChild(new_option);
-        });
+        update_musicname();
     });
 });
 
@@ -178,6 +202,8 @@ function OpenModal(modalID){
 //プログレスバーの実装
 
 function ApploadButtonPushed(){
+    WhenMusicNameSelected();
+
     var Loading_var = document.querySelector(".loading_progress");
     var modal = document.getElementById('Modal_wait');
     modal.style.display = "block";

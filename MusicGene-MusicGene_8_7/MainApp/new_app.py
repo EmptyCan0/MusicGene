@@ -11,15 +11,18 @@ import io
 import re
 from pydub.silence import detect_nonsilent
 
+#グローバル変数の定義
 Music_Genre = ""
 Music_Name = ""
 Music_Path = ""
-Basic_Sound =None
+Basic_Sound = None
 NowScale = 1
 MaxCount = 1
 Count = 0
 ProgressNumber = 0
 Duration = 120000
+
+sent = False
 
 SoundPitch = 39
 
@@ -86,7 +89,6 @@ def update_gear():
     SoundPitch = 39 - gear_value
     #print(SoundPitch)
     return jsonify({"status": "success", "gearValue": gear_value})
-SoundPitch = 39
 ################JSとのデータやり取り################
 
 
@@ -214,18 +216,17 @@ def upload_file():
     
     if file.filename == '':
         return jsonify({"error": "No file selected"}), 400
-    
+    global sent
+    if sent:
+        return jsonify({"error": "FUCK YOU"}), 400
+
     if file:
-        # ファイル名を取得
-        filename = file.filename
-        #print(f"Received file: {filename}")
-        #file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        sent = True
         global Basic_Sound
         Basic_Sound = file
         # 音声ファイルの編集
         edited_file = generate_music(file)
-        # ファイルを保存する場合（ここでは保存先を指定していますが、必要に応じて変更してください）
-        # file.save(f"/path/to/save/{filename}")
+
         # AudioSegmentをバイナリデータに変換
         audio_io = io.BytesIO()
         edited_file.export(audio_io, format="wav")
@@ -236,24 +237,65 @@ def upload_file():
 
 @app.route('/regenerate', methods=['POST'])
 def Regenerate():
-    global Basic_Sound
-    edited_file = generate_music(Basic_Sound)
-    edited_file = io.BytesIO()
-    edited_file.export(edited_file, format="wav")
-    edited_file.seek(0)
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
 
-    return send_file(edited_file, mimetype='audio/wav', as_attachment=True, download_name='audio.wav')
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+    global sent
+    if sent:
+        return jsonify({"error": "FUCK YOU"}), 400
+    
+    if file:
+        sent = True
+        global Basic_Sound
+        Basic_Sound = file
+        # 音声ファイルの編集
+        edited_file = generate_music(file)
+
+        # AudioSegmentをバイナリデータに変換
+        audio_io = io.BytesIO()
+        edited_file.export(audio_io, format="wav")
+        audio_io.seek(0)
+
+        return send_file(audio_io, mimetype='audio/wav', as_attachment=True, download_name='audio.wav')
 
 @app.route('/generate', methods=['POST'])
 def Generate():
-    global combined_sound
-    combined_sound = AudioSegment.silent(duration=12000)
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+    
+    global sent
+
+    if sent:
+        return jsonify({"error": "FUCK YOU"}), 400
+    
+
     global Music_Path
     newpath = Music_Path.replace("MusicSample","MusicLarge")
     SerchMaxCount(newpath)
-    global Basic_Sound
-    edited_file_path = generate_music(Basic_Sound)
-    return edited_file_path
+
+    if file:
+        sent = True
+        global Basic_Sound
+        Basic_Sound = file
+        # 音声ファイルの編集
+        edited_file = generate_music(file)
+
+        # AudioSegmentをバイナリデータに変換
+        audio_io = io.BytesIO()
+        edited_file.export(audio_io, format="wav")
+        audio_io.seek(0)
+
+        return send_file(audio_io, mimetype='audio/wav', as_attachment=True, download_name='audio.wav')
+
 
 def EditSoundFile(StartFrame,scale,combined_sound,add_sound):
     global NowScale
@@ -289,6 +331,8 @@ def generate_music(file):
     if sounds != None:
         sorted_audio_segments = sorted(sounds, key=get_max_volume, reverse=True)
         more_than_2_sounds = True
+        sorted_audio_segments[0].export("1.wav", format="wav")
+        sorted_audio_segments[1].export("2.wav", format="wav")
     else:
         sounds =AudioSegment.from_wav(file)
         
@@ -311,21 +355,19 @@ def generate_music(file):
             if Count == 0:
                 Duration = int(t.split('_')[1])
                 if "MusicSample" in Music_Path:
-                    combined_sound = AudioSegment.silent(duration=30000)
+                    combined_sound = AudioSegment.silent(duration=12000)
                     IsSample = True
                 else:
                     combined_sound = AudioSegment.silent(duration=Duration)
                     IsSample = False
                 Count += 1
                 continue
-            sentence = t.strip("/n").split(",") 
-
+            sentence = t.split(",") 
             frame = sentence[0]
             scale = re.search(r'\d+', sentence[1]).group()
-            color = re.search(r'\D+', sentence[1]).group()
             if int(NowScale) != int(scale):
                 if more_than_2_sounds:
-                    if color == 'g':
+                    if 'g' in sentence[1]:
                         newaudio = change_pitch(scale,sorted_audio_segments[0])
                     else:
                         newaudio = change_pitch(scale,sorted_audio_segments[1])
@@ -334,7 +376,7 @@ def generate_music(file):
                 NowScale = scale
             combined_sound = EditSoundFile(frame,scale,combined_sound,newaudio)
             Count += 1
-            print(Count)
+            #print(Count)
     f1.close()
     global SoundPitch
     print("exporting")
@@ -346,6 +388,10 @@ def generate_music(file):
         outputpath = os.path.join(app.config['UPLOAD_FOLDER'], 'edited_' + str(int(SoundPitch) -39) + '_' + os.path.basename(Music_Path).split(".txt")[0] + '.wav')
     combined_sound.export(outputpath, format="wav")
     print("returned")
+
+    global sent
+    sent = False
+
     return combined_sound
     
 @app.route('/get_ProgressNumber', methods=['GET'])
@@ -362,4 +408,6 @@ def GiveProgressNumber():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
 
