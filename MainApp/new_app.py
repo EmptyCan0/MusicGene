@@ -331,8 +331,11 @@ def generate_music(file):
     if sounds != None:
         sorted_audio_segments = sorted(sounds, key=get_max_volume, reverse=True)
         more_than_2_sounds = True
-        sorted_audio_segments[0].export("1.wav", format="wav")
-        sorted_audio_segments[1].export("2.wav", format="wav")
+       # for i in range(0,len(sorted_audio_segments)):
+        #    sorted_audio_segments[i].export(str(i) + ".wav", format="wav")
+        
+        #sorted_audio_segments[0].export("1.wav", format="wav")
+        #sorted_audio_segments[1].export("2.wav", format="wav")
     else:
         sounds =AudioSegment.from_wav(file)
         
@@ -355,7 +358,8 @@ def generate_music(file):
             if Count == 0:
                 Duration = int(t.split('_')[1])
                 if "MusicSample" in Music_Path:
-                    combined_sound = AudioSegment.silent(duration=12000)
+                    Duration = 30000
+                    combined_sound = AudioSegment.silent(duration=30000)
                     IsSample = True
                 else:
                     combined_sound = AudioSegment.silent(duration=Duration)
@@ -367,10 +371,12 @@ def generate_music(file):
             scale = re.search(r'\d+', sentence[1]).group()
             if int(NowScale) != int(scale):
                 if more_than_2_sounds:
+                    len_ = len(sorted_audio_segments)
+                    index_num =  (int(frame) // (MaxCount // len_)) % len_
                     if 'g' in sentence[1]:
-                        newaudio = change_pitch(scale,sorted_audio_segments[0])
+                        newaudio = change_pitch(scale,sorted_audio_segments[index_num])
                     else:
-                        newaudio = change_pitch(scale,sorted_audio_segments[1])
+                        newaudio = change_pitch(scale,sorted_audio_segments[(index_num + 1)%len(sorted_audio_segments)])
                 else:
                     newaudio = change_pitch(scale,sounds)
                 NowScale = scale
@@ -380,14 +386,15 @@ def generate_music(file):
     f1.close()
     global SoundPitch
     print("exporting")
-    combined_sound.export("unko.wav", format="wav")
-
+    #combined_sound.export("unko.wav", format="wav")
+    """
     if IsSample:
         outputpath = os.path.join(app.config['UPLOAD_FOLDER'], 'edited_' + str(int(SoundPitch) -39) +  '_' + os.path.basename(Music_Path).split(".txt")[0] + '_sample.wav')
     else:
         outputpath = os.path.join(app.config['UPLOAD_FOLDER'], 'edited_' + str(int(SoundPitch) -39) + '_' + os.path.basename(Music_Path).split(".txt")[0] + '.wav')
     combined_sound.export(outputpath, format="wav")
     print("returned")
+    """
 
     global sent
     sent = False
