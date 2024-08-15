@@ -1,3 +1,4 @@
+MAX_FILE_SIZE = 1 * 1024 * 1024; // 5MB
 //アップロードボタンが押されたとき
 document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('uploadForm');
@@ -5,49 +6,30 @@ document.addEventListener('DOMContentLoaded', function() {
     var sent  = false;
 
     uploadForm.addEventListener('submit', function(event) {
-        if (!sent){
-            event.preventDefault();
-            const file = fileInput.files[0];
-            if (file) {
-                sent = true;
-                const formData = new FormData();
-                formData.append('file', file);
-
-                fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.blob())
-                .then(blob => {
-                    const url = URL.createObjectURL(blob);
-                    const audioPlayer = document.getElementById('sample-music');
-                    audioPlayer.src = url;
-                    sent = false;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            } else {
-                console.error('No file selected');
-            }
+        if (sent){
+            return;
         }
-    });
-});
-
-
-document.addEventListener('DOMContentLoaded', function() {
-//再度音声を生成
-    var sent = false;
-    document.getElementById('regene').onclick =  async function() {
-        ApploadButtonPushed();
-        const fileInput = document.getElementById('audioFile');
+        event.preventDefault();
         const file = fileInput.files[0];
         if (file) {
+            if (!file.name.includes('.wav')) {
+                alert('.wavファイルのみアップロード可能です。');
+                return;
+            }
+
+            if (file.size > MAX_FILE_SIZE) {
+                alert('ファイルサイズが大きすぎます。1MB未満のファイルを選択してください。');
+                return;
+            }
             sent = true;
             const formData = new FormData();
             formData.append('file', file);
+            const path = MusicPath();
+            formData.append('path',path)
+            const pitch = get_gearvalue();
+            formData.append('pitch',pitch)
 
-            fetch('/regenerate', {
+            fetch('/upload', {
                 method: 'POST',
                 body: formData
             })
@@ -57,12 +39,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 const audioPlayer = document.getElementById('sample-music');
                 audioPlayer.src = url;
                 sent = false;
+
+                var modal = document.getElementById('Modal_wait');
+                setTimeout(function(){
+                    modal.style.display = "none";
+                    After_SampleMusicCreated();
+                }, 1000);
             })
             .catch(error => {
                 console.error('Error:', error);
+                sent = false;
+                FileUploadError();
             });
-        } else {
-            console.error('No file selected');
+        }
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+//再度音声を生成
+    var sent = false;
+    document.getElementById('regene').onclick =  async function() {
+        if (sent){
+            return;
+        }
+
+        ApploadButtonPushed();
+
+        const fileInput = document.getElementById('audioFile');
+        const file = fileInput.files[0];
+        if (file) {
+            const formData = new FormData();
+
+            sent = true;
+            formData.append('file', file);
+            const path = MusicPath();
+            formData.append('path',path)
+            const pitch = get_gearvalue();
+            formData.append('pitch',pitch)
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const audioPlayer = document.getElementById('sample-music');
+                audioPlayer.src = url;
+                sent = false;
+
+                var modal = document.getElementById('Modal_wait');
+                setTimeout(function(){
+                    modal.style.display = "none";
+                    After_SampleMusicCreated();
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                sent = false;
+                FileUploadError();
+            });
         }
     }
 });
@@ -75,11 +112,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const fileInput = document.getElementById('audioFile');
         const file = fileInput.files[0];
         if (file) {
-            sent = true;
             const formData = new FormData();
-            formData.append('file', file);
 
-            fetch('/generate', {
+            sent = true;
+            formData.append('file', file);
+            let path = MusicPath();
+            path = path.replace("MusicSample","MusicLarge")
+            formData.append('path',path)
+            const pitch = get_gearvalue();
+            formData.append('pitch',pitch)
+
+            fetch('/upload', {
                 method: 'POST',
                 body: formData
             })
@@ -89,17 +132,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 const audioPlayer = document.getElementById('all-music');
                 audioPlayer.src = url;
                 sent = false;
+
+                var modal = document.getElementById('Modal_wait');
+                setTimeout(function(){
+                    modal.style.display = "none";
+                    After_AllMusicCreated();
+                }, 1000);
             })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        } else {
-            console.error('No file selected');
         }
     }
 });
 
-function WhenMusicNameSelected() {
+//fetchに失敗したとき
+var StopGet = false;
+function FileUploadError(){
+    StopGet = true;
+    CloseModal('All');
+    OpenModal('Modal_crush')
+}
+
+function MusicPath(){
     var selectBox1 = document.getElementById("Music_name");
     console.log(selectBox1.selectedIndex)
     var MusicName = selectBox1.options[selectBox1.selectedIndex].value;
@@ -107,18 +159,9 @@ function WhenMusicNameSelected() {
     var MusicGenre = selectBox2.options[selectBox2.selectedIndex].value;
 
     path =  filename = "static//MusicSample//" + String(MusicGenre) + "//" + String(MusicName) + ".txt"
-
-    fetch('/submit2', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ path: path })
-    })
-    .then(response => response.json())
-    .then(data => {
-    });
+    return path;
 }
+
 
 //リストボックスの中身を変更(初期)
 document.addEventListener('DOMContentLoaded', function() {
@@ -190,6 +233,13 @@ document.addEventListener('DOMContentLoaded', function() {
 //-----------------------------------------------------------//
 //閉じるボタン
 function CloseModal(modalID){
+    if (modalID == 'All'){
+        var modals = document.getElementsByClassName('modal');
+        for (var i = 0; i < modals.length; i++) {
+            modals[i].style.display = "none";
+        }
+        return;
+    }
     var modal = document.getElementById(modalID);
     modal.style.display = "none";
 }
@@ -202,40 +252,17 @@ function OpenModal(modalID){
 //プログレスバーの実装
 
 function ApploadButtonPushed(){
-    WhenMusicNameSelected();
+    const fileInput = document.getElementById('audioFile');
+    const file = fileInput.files[0];
+    if (!file || !file.name.includes('.wav')) { return; }
+
+    if (file.size > MAX_FILE_SIZE) {return;}
 
     var Loading_var = document.querySelector(".loading_progress");
     var modal = document.getElementById('Modal_wait');
     modal.style.display = "block";
     CloseModal('SampleCheck')
-    var width = 0;
-    var interval = setInterval(function(){
-        if (width >= 100){
-            clearInterval(interval);
-            modal.style.display = "none"
-        }else{
-            $.ajax({
-                url: '/get_ProgressNumber',
-                type: 'GET',
-                success: function(response) {
-                    // サーバーからのレスポンスを処理
-                    width = response.ProgressNumber;
-                    Loading_var.style.width = width + '%';
-                    Loading_var.innerHTML = width + '%';
-
-                    // 完了時にモーダルを閉じる
-                    if (width >= 100) {
-                        clearInterval(interval);
-                        modal.style.display = "none";
-                        After_SampleMusicCreated();
-                    }
-                },
-                error: function(error) {
-                    console.log('エラー: ', error);
-                }
-            });
-        }
-    },500); 
+    
 }
 
 
@@ -244,38 +271,17 @@ function GenerateButtonPushed(){
     var modal = document.getElementById('Modal_wait');
     modal.style.display = "block";
     CloseModal('SampleCheck')
-    var width = 0;
-    var interval = setInterval(function(){
-        if (width >= 100){
-            clearInterval(interval);
-            modal.style.display = "none"
-        }else{
-            $.ajax({
-                url: '/get_ProgressNumber',
-                type: 'GET',
-                success: function(response) {
-                    // サーバーからのレスポンスを処理
-                    width = response.ProgressNumber;
-                    Loading_var.style.width = width + '%';
-                    Loading_var.innerHTML = width + '%';
-
-                    // 完了時にモーダルを閉じる
-                    if (width >= 100) {
-                        clearInterval(interval);
-                        modal.style.display = "none";
-                        After_AllMusicCreated();
-                    }
-                },
-                error: function(error) {
-                    console.log('エラー: ', error);
-                }
-            });
-        }
-    },500); 
 }
 
 //サンプルが生成し終わった後
 function After_SampleMusicCreated(){
+    const audioPlayer = document.getElementById('sample-music');
+    if (audioPlayer.readyState < 3) 
+    {
+        FileUploadError();
+        return;
+    }
+    console.log(audioPlayer.src)
     var checkmodal = document.getElementById("SampleCheck");
     checkmodal.style.display = "block";
 }
@@ -286,27 +292,22 @@ function After_AllMusicCreated(){
     checkmodal.style.display = "block";
 }
 
+
+function get_gearvalue(){
+    const value = document.getElementById('gearSlider').value;
+    return value;
+}
+
+
 //スライダーの実装
 function updateGear(value) {
     document.getElementById('gearValue').textContent = value;
     // ここでギアの値を使って変数を調整します
     var gearValue = parseInt(value, 10);
     // ギアの値を送信
-    $.ajax({
-        url: '/update_gear',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ gearValue: gearValue }),
-        success: function(response) {
-            console.log("Server response:", response);
-        },
-        error: function(error) {
-            console.error("Error:", error);
-        }
-    });
 }
 
 
 //-----------------------------------------------------------//
-//------------モールドの操作----------------------------------//
+//------------モーダルの操作----------------------------------//
 //-----------------------------------------------------------//

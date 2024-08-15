@@ -1,7 +1,5 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify, send_from_directory, send_file
+from flask import Flask, request, session,render_template,jsonify, send_from_directory, send_file
 from pydub import AudioSegment
-import os
-import threading
 
 import librosa
 import soundfile as sf
@@ -11,23 +9,16 @@ import io
 import re
 from pydub.silence import detect_nonsilent
 
+
 #グローバル変数の定義
-Music_Genre = ""
-Music_Name = ""
-Music_Path = ""
-Basic_Sound = None
-NowScale = 1
-MaxCount = 1
-Count = 0
-ProgressNumber = 0
-Duration = 120000
-
-sent = False
-
-SoundPitch = 39
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads/'
+ALLOWED_EXTENSIONS = {'wav'}
+
+import secrets
+secret_key = secrets.token_hex(16)
+app.config['SECRET_KEY'] = secret_key
 
 @app.route('/')
 def index():
@@ -38,57 +29,26 @@ UPLOAD_FOLDER = 'uploads'
 def get_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 ################JSとのデータやり取り################
-@app.route('/submit', methods=['POST'])
-def WhenMusicGenreSelected():
-    data = request.get_json()
-    selected_value = data['selectedValue']
-    global Music_Genre 
-    Music_Genre = str(selected_value)
-    # 選択された値に対してPythonコードを実行
-    print(f"選択された値: {selected_value}")
-    # ここにPythonで処理を追加
-    response = {
-        'response': f'受け取った値は: {selected_value}'
-    }
-    return jsonify(response)
 
-#曲名を選んだあと
-@app.route('/submit2', methods=['POST'])
-def WhenMusicNameSelected():
-    data = request.get_json()
-    newpath = data['path']
-    response = {
-        'response': f'受け取った値は: {newpath}'
-    }
-    print(newpath)
-    filename = str(newpath)
-    SerchMaxCount(filename)
-    return jsonify(response)
-
-def SerchMaxCount(filename):
-    global Music_Path
-    Music_Path = filename
+def SerchMaxCount(path):
     #MaxScaleの計測
     count = 0
-    with open(Music_Path, 'rt', encoding="utf-8") as f:
+    with open(path, 'rt', encoding="utf-8") as f:
         text1 = f.readlines()
         for t in text1:
             count += 1
     f.close()
-    global MaxCount
-    MaxCount = count
-    print(MaxCount)
+    return count
 
-#ギアの値（ピッチ)を取得
-@app.route('/update_gear', methods=['POST'])
-def update_gear():
-    gear_value = request.json.get('gearValue')
-    # ここでギアの値を使用して必要な処理を行います
-    global SoundPitch
-    SoundPitch = 39 - gear_value
-    #print(SoundPitch)
-    return jsonify({"status": "success", "gearValue": gear_value})
+##################################################
+############### 音声の生成系の部分 ################
+##################################################
+
 ################JSとのデータやり取り################
 
 
@@ -174,8 +134,8 @@ def split_wav_by_ranges(audio_data, peak_times):
         
     return sounds
 
-
 def EditMusicFile(audio_data):
+    
     # バイナリデータをBytesIOオブジェクトに変換
     audio = audio_data.read()
     audio_file = io.BytesIO(audio)
@@ -195,7 +155,6 @@ def EditMusicFile(audio_data):
 
     y_average = average_block(y_reduced,block_number)
     time = reduce_number * block_number * np.arange(len(y_average)) / sr 
-
     new_y , new_time, peak_time= remove_below_threshold_duplicates(y_average,time,threshold=np.mean(y_average))
     
     if len(peak_time) == 0:
@@ -215,101 +174,42 @@ def upload_file():
     file = request.files['file']
     
     if file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
-    global sent
-    if sent:
-        return jsonify({"error": "FUCK YOU"}), 400
+        return jsonify({"error": "uncorrect file"}), 400
+    
+    # セッション内で `sent` の状態を管理
+    if session.get('sent', False):
+        return jsonify({"error": "Duplication error"}), 400
 
-    if file:
-        sent = True
-        global Basic_Sound
-        Basic_Sound = file
+
+    if file and allowed_file(file.filename):
+        session['sent'] = True  # セッションで `sent` を True に設定
+        
+        music_path = request.form.get('path')
+        pitch = request.form.get('pitch')
+        
         # 音声ファイルの編集
-        edited_file = generate_music(file)
+        try:
+            edited_file = generate_music(file,music_path,pitch)
+        except Exception as e:
+            session['sent'] = False  # エラーが発生した場合に `sent` を False に戻す
+            return jsonify({"error": "Wrong wav file", "message": str(e)}), 400
 
         # AudioSegmentをバイナリデータに変換
         audio_io = io.BytesIO()
-        edited_file.export(audio_io, format="wav")
+        edited_file.export(audio_io, format="wav") 
         audio_io.seek(0)
-
+        session['sent'] = None
         return send_file(audio_io, mimetype='audio/wav', as_attachment=True, download_name='audio.wav')
+    else:
+        return jsonify({"error": "Wrong wav file"}), 400
 
-
-@app.route('/regenerate', methods=['POST'])
-def Regenerate():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
-
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
-    global sent
-    if sent:
-        return jsonify({"error": "FUCK YOU"}), 400
-    
-    if file:
-        sent = True
-        global Basic_Sound
-        Basic_Sound = file
-        # 音声ファイルの編集
-        edited_file = generate_music(file)
-
-        # AudioSegmentをバイナリデータに変換
-        audio_io = io.BytesIO()
-        edited_file.export(audio_io, format="wav")
-        audio_io.seek(0)
-
-        return send_file(audio_io, mimetype='audio/wav', as_attachment=True, download_name='audio.wav')
-
-@app.route('/generate', methods=['POST'])
-def Generate():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
-
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
-    
-    global sent
-
-    if sent:
-        return jsonify({"error": "FUCK YOU"}), 400
-    
-
-    global Music_Path
-    newpath = Music_Path.replace("MusicSample","MusicLarge")
-    SerchMaxCount(newpath)
-
-    if file:
-        sent = True
-        global Basic_Sound
-        Basic_Sound = file
-        # 音声ファイルの編集
-        edited_file = generate_music(file)
-
-        # AudioSegmentをバイナリデータに変換
-        audio_io = io.BytesIO()
-        edited_file.export(audio_io, format="wav")
-        audio_io.seek(0)
-
-        return send_file(audio_io, mimetype='audio/wav', as_attachment=True, download_name='audio.wav')
-
-
-def EditSoundFile(StartFrame,scale,combined_sound,add_sound):
-    global NowScale
-    start = int(StartFrame)
-    #print(strSoundPath,start)
-    combined_sound = combined_sound.overlay(add_sound, position= 1000 * start / 60)
-    return combined_sound
    
-def change_pitch(scale,sound):
+def change_pitch(scale,sound,gear_value):
     # 音声ファイルを読み込む
     audio = sound
     # ピッチを変更する
-    global SoundPitch
-    octaves = (int(scale) - int(SoundPitch)) / 24 #24が違和感もっともない
+    new_pitch = 39 - gear_value
+    octaves = (int(scale) - int(new_pitch)) / 24 #24が違和感もっともない
     new_sample_rate = int(audio.frame_rate * (4 ** octaves))
     audio = audio._spawn(audio.raw_data, overrides={
         "frame_rate": new_sample_rate
@@ -322,96 +222,85 @@ def change_pitch(scale,sound):
 def get_max_volume(audio_segment):
     return audio_segment.max_dBFS
 
+def remove_silence_from_start(audio, silence_threshold=-30.0, chunk_size=10):
+    # 無音部分を見つける
+    trim_ms = 0
+    while audio[trim_ms:trim_ms + chunk_size].dBFS < silence_threshold and trim_ms < len(audio):
+        trim_ms += chunk_size
 
-def generate_music(file):
+    # 無音部分を削除
+    trimmed_audio = audio[trim_ms:]
+    return trimmed_audio
+
+def EditSoundFile(StartFrame,combined_sound,add_sound):
+    start = int(StartFrame)
+    combined_sound = combined_sound.overlay(add_sound, position= 1000 * start / 60)
+    return combined_sound
+
+def generate_music(file,music_path,gear_value):
+    maxcount = SerchMaxCount(music_path)
+    
     print("waiting")
     more_than_2_sounds = False
-    
+
     sounds = EditMusicFile(file)
     if sounds != None:
         sorted_audio_segments = sorted(sounds, key=get_max_volume, reverse=True)
         more_than_2_sounds = True
-       # for i in range(0,len(sorted_audio_segments)):
-        #    sorted_audio_segments[i].export(str(i) + ".wav", format="wav")
-        
-        #sorted_audio_segments[0].export("1.wav", format="wav")
-        #sorted_audio_segments[1].export("2.wav", format="wav")
+        for i in range(0,len(sorted_audio_segments)):
+            sorted_audio_segments[i] = remove_silence_from_start(sorted_audio_segments[i])
+            #sorted_audio_segments[i].export(str(i+1) + ".wav" , format="wav")
     else:
         sounds =AudioSegment.from_wav(file)
-        
-    global Music_Path
-    file_name = Music_Path
-
-    global NowScale
-    NowScale = 0
-    combined_sound = AudioSegment.silent(duration=12000)
-    IsSample = False
+        sounds = remove_silence_from_start(sounds)
+        #sounds.export("0.wav",format = "wav")
     
-    global Count
-    Count = 0
-    
+    file_name = music_path
     newaudio = None
+    combined_sound = AudioSegment.silent(duration=12000)
+    old_scale = -1
+    count = 0
+    base_pitch = int(gear_value)
+    
 
-    with open(file_name, 'rt', encoding="utf-8") as f1:
+    with open(file_name, 'rt', encoding='utf-8') as f1:
         text1 = f1.readlines()
         for t in text1:
-            if Count == 0:
+            if count >= maxcount * 5:
+                return
+            
+            if count == 0:
                 Duration = int(t.split('_')[1])
-                if "MusicSample" in Music_Path:
-                    Duration = 30000
-                    combined_sound = AudioSegment.silent(duration=30000)
-                    IsSample = True
+                if "MusicSample" in music_path:
+                    Duration = 20000
+                    combined_sound = AudioSegment.silent(duration=Duration)
                 else:
                     combined_sound = AudioSegment.silent(duration=Duration)
-                    IsSample = False
-                Count += 1
+                count += 1
                 continue
             sentence = t.split(",") 
             frame = sentence[0]
             scale = re.search(r'\d+', sentence[1]).group()
-            if int(NowScale) != int(scale):
+            if int(old_scale) != int(scale):
                 if more_than_2_sounds:
                     len_ = len(sorted_audio_segments)
-                    index_num =  (int(frame) // (MaxCount // len_)) % len_
+                    index_num =  ((len_ * count )// maxcount)
                     if 'g' in sentence[1]:
-                        newaudio = change_pitch(scale,sorted_audio_segments[index_num])
+                        newaudio = change_pitch(scale,sorted_audio_segments[index_num],base_pitch)
                     else:
-                        newaudio = change_pitch(scale,sorted_audio_segments[(index_num + 1)%len(sorted_audio_segments)])
+                        newaudio = change_pitch(scale,sorted_audio_segments[index_num],base_pitch)
                 else:
-                    newaudio = change_pitch(scale,sounds)
-                NowScale = scale
-            combined_sound = EditSoundFile(frame,scale,combined_sound,newaudio)
-            Count += 1
-            #print(Count)
+                    newaudio = change_pitch(scale,sounds,base_pitch)
+                old_scale = scale
+
+            print(count)
+            combined_sound = EditSoundFile(frame,combined_sound,newaudio)
+            count += 1
+            
     f1.close()
-    global SoundPitch
     print("exporting")
-    #combined_sound.export("unko.wav", format="wav")
-    """
-    if IsSample:
-        outputpath = os.path.join(app.config['UPLOAD_FOLDER'], 'edited_' + str(int(SoundPitch) -39) +  '_' + os.path.basename(Music_Path).split(".txt")[0] + '_sample.wav')
-    else:
-        outputpath = os.path.join(app.config['UPLOAD_FOLDER'], 'edited_' + str(int(SoundPitch) -39) + '_' + os.path.basename(Music_Path).split(".txt")[0] + '.wav')
-    combined_sound.export(outputpath, format="wav")
-    print("returned")
-    """
-
-    global sent
-    sent = False
-
     return combined_sound
     
-@app.route('/get_ProgressNumber', methods=['GET'])
-def GiveProgressNumber():
-    global NowScale
-    global MaxCount
-    global ProgressNumber
-    global Count
-    ProgressNumber = int(int(Count)/int(MaxCount) * 100)
-    return jsonify({"ProgressNumber": ProgressNumber})
-##################################################
-############### 音声の生成系の部分 ################
-##################################################
 
 if __name__ == "__main__":
     app.run(debug=True)

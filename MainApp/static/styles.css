@@ -20,8 +20,9 @@ body {
     overflow: hidden;
 }
 
+
 .header{
-    background-color: rgb(170, 235, 247);
+    background-color: rgb(123, 235, 255);
     padding: 20px;
     display: flex;
     justify-content: center;
@@ -116,11 +117,14 @@ form {
     border-color: #218838;
 }
 
+.textimage{
+    margin: 1px;
+    text-align: center;
+}
+
 .upload-container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    border-radius: 3px;
     text-align: center;
 }
 
@@ -154,6 +158,12 @@ form {
     max-width: 800px; 
     height: 200px;
     border-radius: 10px;
+}
+
+.modal-text{
+    text-align: center;
+    font-size:  medium;
+    margin-top: 20px;
 }
 
 .modal-content-large {
@@ -220,6 +230,7 @@ form {
     border-radius: 10px;
     overflow: hidden;
     margin-top: 20px;
+    display: none;
 }
 
 .loading_progress{
@@ -229,6 +240,7 @@ form {
     text-align: center;
     line-height: 20px; /* バーの高さと一致させる */
     color: white;
+    display: none;
 }
 
 /*ピッチを変更したい場合*/
@@ -247,3 +259,21 @@ form {
 /* ================================ */
 /* ========モーダルの内容 ==========*/
 /* ================================ */
+
+/* ローディングアイコンのスタイル */
+.loading-icon {
+    border: 16px solid #f3f3f3; /* 薄いグレー */
+    border-top: 16px solid #3498db; /* 青 */
+    border-radius: 50%;
+    width: 75px;
+    height: 75px;
+    animation: spin 2s linear infinite;
+    position:  absolute;
+    left: 48%;
+}
+
+/* アニメーション */
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}

@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>アップロード</title>
+    <title>音MADメーカー</title>
     <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}" defer></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
     <div class='container'>
@@ -27,10 +27,15 @@
                 <script src="static/script.js"></script>
         </div>
 
+        <div class="textimage">
+            <img src="{{ url_for('static', filename='text.png') }}" height=50>
+        </div>
+
         <div class="upload-container">
+            
             <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
-                <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
-                <button onclick="ApploadButtonPushed()" type="submit">Upload</button>
+                <input type="file" id="audioFile" name="audioFile" accept=".wav">
+                <button onclick="ApploadButtonPushed()" id="submitButton" type="submit">Upload</button>
             </form>
             <script src="static/script.js"></script>
         </div>
@@ -38,17 +43,34 @@
             <!-- モーダルの構造 -->
         <div id="Modal_wait" class="modal">
             <div class="modal-content">
+                
                 <span class="close" onclick=" CloseModal('Modal_wait')">&times;</span>
                 <div class="modal-header">音声を生成しています。しばらくお待ちください。</div>
                 <div class="loading_var">
                     <div class="loading_progress"></div>
                 </div>
+                <div class="loading-icon" id="loadingIcon"></div>
             </div>
             <script src="static/script.js"></script>
         </div>
+
+        <!-- ファイル送信エラー用のモーダル -->
+        <div id="Modal_crush" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="CloseModal('Modal_crush')">&times;</span>
+                <div class="modal-header">ファイルアップロードに失敗しました</div>
+                <div class="modal-text">
+                    恐れ入りますが、しばらく時間をおいてから再度お試しください。
+                    <br>また、音声ファイルが正式なWAV形式であることをご確認ください。
+                </div>
+            </div> <!-- .modal-content の閉じタグが必要 -->
+        </div> <!-- .modal の閉じタグが必要 -->
+        <!-- 外部JavaScriptの読み込み -->
+        <script src="static/script.js"></script>
+
         <div id="SampleCheck" class="modal">
             <div class="modal-content-large">
-                <span class="close" onclick=" CloseModal('SampleCheck')">&times;</span>
+                <span class="close" onclick=" CloseModal('All')">&times;</span>
                 <div class="modal-header">サンプル音声を確認してください</div>
                 <div>
                     <audio id="sample-music" controls src="{{ url_for('get_file', filename='sound.wav') }}"></audio>
@@ -69,14 +91,12 @@
             </div>
         </div>
         <div id="MusicCheck" class="modal">
-            <div class="modal-content-large">
+            <div class="modal-content">
                 <span class="close" onclick=" CloseModal('MusicCheck')">&times;</span>
                 <div class="modal-header">音声の生成が完了しました</div>
                 <div>
                     <audio id="all-music" controls src="{{ url_for('get_file', filename='sound.wav') }}"></audio>
                 </div>
-
-                <button id="DL" class="btn-submit">音声をダウンロード</button>
                 <script src="static/script.js"></script>
 
             </div>
