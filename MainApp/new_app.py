@@ -288,7 +288,7 @@ def generate_music(file,music_path,gear_value):
                     if 'g' in sentence[1]:
                         newaudio = change_pitch(scale,sorted_audio_segments[index_num],base_pitch)
                     else:
-                        newaudio = change_pitch(scale,sorted_audio_segments[index_num],base_pitch)
+                        newaudio = change_pitch(scale,sorted_audio_segments[(index_num + 1)%len_],base_pitch)
                 else:
                     newaudio = change_pitch(scale,sounds,base_pitch)
                 old_scale = scale
@@ -300,6 +300,19 @@ def generate_music(file,music_path,gear_value):
     f1.close()
     print("exporting")
     return combined_sound
+
+
+@app.route('/hello', methods=['POST'])
+def hello():
+    text = request.form.get('text')  # 'text'というキーでデータを取得
+
+    # ここで任意の処理を行います。例：受け取った文字列をログに出力
+    newtext = text + " world"
+
+    # クライアントに返すレスポンス
+    return f'Received text: {newtext}'
+
+
     
 
 if __name__ == "__main__":

@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const genre_options = [
         { value: '東方Project', text: '東方Project' },
         { value: 'FFシリーズ', text: 'FFシリーズ' },
-        { value: '3', text: 'Option 3' }
+        { value: 'ポケモン', text: 'ポケモン' }
     ];
 
     genre_options.forEach(option => {
@@ -198,10 +198,7 @@ function update_musicname(){
             { value: "ナイトオブナイツ", text: "ナイトオブナイツ"},
             { value: "最終鬼畜妹フランドール・S", text: "最終鬼畜妹フランドール・S"},
             { value: "亡き王女の為のセプテット", text: "亡き王女の為のセプテット"},
-            { value: "ネイティブフェイス", text: "ネイティブフェイス"},
-            { value: "恋色マスタースパーク", text: "恋色マスタースパーク"},
-            { value: "いざ、倒れ逝くその時まで", text: "いざ、倒れ逝くその時まで"},
-            { value: "今宵は飄逸なエゴイスト", text: "今宵は飄逸なエゴイスト"}
+            { value: "恋色マスタースパーク", text: "恋色マスタースパーク"}
         ];
     }
     else if (select_genre == 'FFシリーズ'){
@@ -307,6 +304,23 @@ function updateGear(value) {
     // ギアの値を送信
 }
 
+
+function SendSome(){
+    const formData = new FormData();
+    formData.append('text', "hello");
+
+    fetch('/hello', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Success:', data);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
 
 //-----------------------------------------------------------//
 //------------モーダルの操作----------------------------------//
