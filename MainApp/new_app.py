@@ -22,7 +22,7 @@ app.config['SECRET_KEY'] = secret_key
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index2.html')
 
 UPLOAD_FOLDER = 'uploads'
 @app.route('/uploads/<filename>')

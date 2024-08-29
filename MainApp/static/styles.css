@@ -21,14 +21,36 @@ body {
 }
 
 
+/* ヘッダーの設定 */
 .header{
-    background-color: rgb(123, 235, 255);
+    background-color: rgb(180, 244, 255);
+    display: fle;
     padding: 20px;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
+    align-items: center; /* 子要素を縦方向の中央に揃える */
 }
+.header_title {
+    display: flex; /* 子要素を横並びにする */
+    align-items: center; /* 子要素を垂直方向に中央揃え */
+}
+
+.header_title img {
+    margin-right: 10px; /* 画像とテキストの間に少しスペースを設定 */
+    display: inline-block; /* 画像をインラインブロックに設定 */
+}
+
+.header_title p {
+    margin: 0; /* <p>タグのデフォルトの余白を削除 */
+    display: inline-block; /* テキストをインラインブロックに設定することで改行を防止*/
+}
+
+.twitter-link {
+    display: flex; /* リンクをフレックスコンテナに設定 */
+    flex-direction: column; /* 子要素を縦に並べる */
+    align-items: center; /* 子要素を中央に揃える */
+    text-decoration: none; /* リンクの下線を削除 */
+    color: inherit; /* リンクのテキスト色を継承 */
+}
+
 
 .header-image {
     width: 100%;

@@ -10,8 +10,17 @@
 <body>
     <div class='container'>
         <div class='header'>
-            <img src="{{ url_for('static', filename='samune.png') }}" alt="Sample Image" class="header-image">
+            <div class= 'header_title'>
+                <!-- twitterのアイコンを表示する -->
+                <a href="https://x.com/trash_chinpost" target="_blank" rel="noopener noreferrer" class="twitter-link">
+                    <img src="{{ url_for('static', filename='icon.jpg') }}" alt="Twitter Logo" height="40px" >
+                    <p>作った人</p>
+                </a>
+                <p style="font-size: 24px; margin-left: 5%; font: bold;">音MADメーカー(音だけ)</p>
+            </div>
         </div>
+        <img src="{{ url_for('static', filename='samune.png') }}" alt="Sample Image" class="header-image"> 
+            
         <div>
             <div class="list-box">
                 <div class="explain_text">曲のジャンル：</div>
@@ -99,3 +108,4 @@
     </div>
 </body>
 </html>
+
