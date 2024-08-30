@@ -11,35 +11,48 @@ body {
 }
 
 .container{
-    
+    height: auto;
     width: 100%;
-    max-width: 1000px; /* Optional: to limit the max width of the container */
+    max-width: 1000px; /* 横幅の最大値を設定 */
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 10px;
-    overflow: hidden;
+    overflow: visible;
 }
-
 
 /* ヘッダーの設定 */
 .header{
-    background-color: rgb(180, 244, 255);
-    display: fle;
-    padding: 20px;
-    align-items: center; /* 子要素を縦方向の中央に揃える */
+    margin-top: 2px;
+    /* カラーリング（グラデーション） */
+    background: linear-gradient(90deg, #150c3d 8%, #25185e 10%, #7561cf 70%, #ffffff 100%);
+    padding-top: 10px;
 }
 .header_title {
     display: flex; /* 子要素を横並びにする */
     align-items: center; /* 子要素を垂直方向に中央揃え */
 }
 
+.title_text{
+    font-weight : bold;
+    font-family: 'Roboto', sans-serif;/*フォントを設定 */
+    color:  white;/* 背景にグラデーションを設定 */
+    text-shadow: 
+    -2px -2px 3px #0000002a,  /* 左上の影を少しぼかし */
+    2px -2px 3px #0000002a, /* 右上の影を少しぼかし */
+    -2px 2px 3px #0000002a,   /* 左下の影を少しぼかし */
+    2px 2px 3px #0000002a;    /* 右下の影を少しぼかし */
+}
+
 .header_title img {
+    padding-left: 10px; /* 画像とテキストの間に少しスペースを設定 */
     margin-right: 10px; /* 画像とテキストの間に少しスペースを設定 */
+    align-items: center; /* 子要素を垂直方向に中央揃え */
     display: inline-block; /* 画像をインラインブロックに設定 */
 }
 
 .header_title p {
     margin: 0; /* <p>タグのデフォルトの余白を削除 */
+    align-items: center; /* 子要素を垂直方向に中央揃え */
     display: inline-block; /* テキストをインラインブロックに設定することで改行を防止*/
 }
 
@@ -51,9 +64,44 @@ body {
     color: inherit; /* リンクのテキスト色を継承 */
 }
 
+.icon-image{
+    height: 60px; /*円のサイズ*/
+    width: 60px; /*円のサイズ*/
+    border-radius: 10px; /* 角を丸くする（オプション） */
+    border-radius: 50%; /* 画像を円形にする */
+}
 
-.header-image {
+/* 中央部分のスタイル */
+.big-body{
+    margin-top: 2px;
     width: 100%;
+    max-width: 1000px; /* 横幅の最大値を設定 */
+    height: 500px;
+    /* 画面中央の背景色をグラデーションで設定 */
+    background: linear-gradient(90deg, #217681 10%, #61b5cf 60%, #ffffff 100%);
+}
+.big-body p {
+    margin: 0; /* <p>タグのデフォルトの余白を削除 */
+    align-items: center; /* 子要素を垂直方向に中央揃え */
+    display: inline-block; /* テキストをインラインブロックに設定することで改行を防止*/
+}
+
+.body-text{
+    color: white;
+    text-shadow: 
+    -2px -2px 3px #0000002a,  /* 左上の影を少しぼかし */
+    2px -2px 3px #0000002a, /* 右上の影を少しぼかし */
+    -2px 2px 3px #0000002a,   /* 左下の影を少しぼかし */
+    2px 2px 3px #0000002a;    /* 右下の影を少しぼかし */
+}
+
+
+.body-content{
+    border: 1px solid #a5a5a58a;
+    margin: 0 auto; /* 左右のマージンを自動にして中央揃え */
+    background: linear-gradient(180deg, #ffffff 70%, #575757 100%);
+    border-radius: 10px; /* 角を丸くする（オプション） */
+    width: 95%;
     height: auto;
 }
 
