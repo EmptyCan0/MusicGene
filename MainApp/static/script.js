@@ -204,6 +204,15 @@ function update_musicname(){
     else if (select_genre == 'FFシリーズ'){
         music_name_option = [
             { value: "ビッグブリッジの死闘", text: "ビッグブリッジの死闘"},
+            { value: "ザナルカンドにて", text: "ザナルカンドにて"},
+            { value: "チョコボのテーマ", text: "チョコボのテーマ"}
+        ];
+    }
+    else if (select_genre == 'ポケモン'){
+        music_name_option = [
+            { value: "戦闘_レッド", text: "戦闘_レッド"},
+            { value: "シロナ戦前奏", text: "シロナ戦前奏"},
+            { value: "シロナ戦", text: "シロナ戦"}
         ];
     }
     //リストボックスの更新

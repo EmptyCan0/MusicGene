@@ -76,7 +76,7 @@ body {
     margin-top: 2px;
     width: 100%;
     max-width: 1000px; /* 横幅の最大値を設定 */
-    height: 500px;
+    height: 525px;
     /* 画面中央の背景色をグラデーションで設定 */
     background: linear-gradient(90deg, #217681 10%, #61b5cf 60%, #ffffff 100%);
 }
@@ -95,47 +95,87 @@ body {
     2px 2px 3px #0000002a;    /* 右下の影を少しぼかし */
 }
 
+.body-minititle{
+    position: absolute;
+    color: rgba(0, 0, 0, 0.644);
+    font-weight: bold;
+    text-shadow: 
+    2px 2px 3px #0000002a;    /* 右下の影を少しぼかし */
+}
+
+.body-element-background{
+    position: absolute;
+    background: #0057b334;
+    border-radius: 20px; /* 角を丸くする場合に使用 */
+    box-shadow: 0 0 10px #0057b334;; /* ぼかし効果を持つボーダー */
+}
 
 .body-content{
-    border: 1px solid #a5a5a58a;
+    position: relative;
+    /* border: 1px solid #ffffff8a; */
     margin: 0 auto; /* 左右のマージンを自動にして中央揃え */
-    background: linear-gradient(180deg, #ffffff 70%, #575757 100%);
-    border-radius: 10px; /* 角を丸くする（オプション） */
+    /* background: linear-gradient(180deg, #ffffff 70%, #575757 100%); */
+    background: rgba(255, 255, 255, 0.884);
+    box-shadow: 0 0 10px rgb(255, 255, 255); /* ぼかし効果を持つボーダー */
+    border-radius: 10px; /* 角を丸くする場合に使用 */
     width: 95%;
-    height: auto;
+    height: 400px;
 }
 
 /*説明文のスタイル*/
 .explain_text{
-   font-size: 20px;
+   font-size: 22px;
    padding-left: 20px;
+   font-weight: bold;
+   text-shadow: 
+   2px 2px 3px #ffffff;    /* 右下の影を少しぼかし */
 }
 
 /* リストボックスのスタイル */
 .list-box {
-    background-color: rgb(187, 187, 187);
+    background : linear-gradient(180deg, #5f5f5f 1%, #c9c9c9 10%, #aaaaaa 80%, #636363 100%);
     padding: 30px;
-    margin-bottom: 20px;
     display: flex;
     justify-content: center;
 }
 
 .list_text{
     font-family: "游明朝体", "Yu Mincho", YuMincho, "ヒラギノ明朝 Pro", "Hiragino Mincho Pro", "MS P明朝", "MS PMincho", serif;
-    font-size: 20px;
+    font-weight: bold;
+    font-size: 22px;
 }
 
+/* フォームの部分全体のスタイル */
+.form-container{
+    position: relative;
+    background : linear-gradient(180deg,  #ffffff 10%, #d6d6d6 100%);
+    height: 200px;
+
+}
+
+.form-container p{
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 
+    2px 2px 3px #0000002a;    /* 右下の影を少しぼかし */
+}
+
+.upload-container {
+    border-radius: 3px;
+    text-align: center;
+}
 
 /* フォームのスタイル */
 form {
     display:  flex;
     justify-content: center;
-    max-width: 500px;
-    margin: 50px auto;
+    width: 60%;
+    max-width: 800px;
+    margin: 0 auto;
     padding: 20px;
-    border: 1px solid #ffffff;
-    border-radius: 30px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.336);
 }
 
 /* ファイル入力のカスタマイズ */
@@ -146,13 +186,17 @@ form {
 }
 
 .file-input {
-    margin: 10px;
-    font-size: 100px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    opacity: 0;
+    display: inline-block;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none; /* 枠線を削除 */
+    border-radius: 5px; /* 角を丸くする */
+    font-size: 16px; /* フォントサイズ */
+    text-align: center;
+    transition: background-color 0.3s ease; /* 背景色の変化にトランジション効果を追加 */
 }
+
+
 
 .btn-file {
     border: 2px solid #007BFF;
@@ -172,13 +216,12 @@ form {
 
 /* 送信ボタンのスタイル */
 .btn-submit {
-    margin: 10px;
-    border: 2px solid #28a745;
+    border: 2px solid #18065780;
     color: white;
-    background-color: #28a745;
-    padding: 10px 20px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.295); /* ぼかし効果を持つボーダー */
+    background : linear-gradient(180deg, #76689b 1%, #9f8eff 10%, #8254ff 100%);
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
 }
 
@@ -187,16 +230,7 @@ form {
     border-color: #218838;
 }
 
-.textimage{
-    margin: 1px;
-    text-align: center;
-}
 
-.upload-container {
-    background-color: #ffffff;
-    border-radius: 3px;
-    text-align: center;
-}
 
 
 /* ================================ */

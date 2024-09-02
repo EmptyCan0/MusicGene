@@ -272,7 +272,7 @@ def generate_music(file,music_path,gear_value):
             if count == 0:
                 Duration = int(t.split('_')[1])
                 if "MusicSample" in music_path:
-                    Duration = 20000
+                    Duration = 10000
                     combined_sound = AudioSegment.silent(duration=Duration)
                 else:
                     combined_sound = AudioSegment.silent(duration=Duration)

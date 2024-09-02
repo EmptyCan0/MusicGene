@@ -13,7 +13,7 @@
             <div class= 'header_title'>
                 <!-- twitterのアイコンを表示する -->
                 <a href="https://x.com/trash_chinpost" target="_blank" rel="noopener noreferrer" class="twitter-link">
-                    <img src="{{ url_for('static', filename='icon.jpg') }}" alt="Twitter Logo" class="icon-image">
+                    <img src="{{ url_for('static', filename='/pic/icon.jpg') }}" alt="Twitter Logo" class="icon-image">
                     <p class="title_text" style="font-size: 15px;">作った人</p>
                 </a>
                 <p class="title_text" style="font-size: 45px;margin-left: 2%;">音MADメーカー (音だけ)</p>
@@ -23,7 +23,34 @@
         <div class='big-body'>
             <p class='body-text' style="font-size: 43px; margin: 1%;font-family: serif;">・ 好きな音源で音楽を作ろう</p>
             <div class='body-content'>
-                <pclass='body-text' style="font-size: 23px; margin: 1%;font-family: serif;">短い音声をアップロード<p>
+                <!-- 画面左上のコンテナ-->
+                <div class="body-element-background" style="top: 10px; left: 10px; width: 450px; height: 200px;"></div>
+                <div><p class='body-minititle' style="top:15px; left:25px ;font-size: 30px; font-family: serif;">短い音声をアップロード</p></div>
+                <div> 
+                    <audio style="position:absolute ;top:90px; left:25px" controls src="{{ url_for('static', filename='sample.wav') }}"></audio>
+                    <img style="position:absolute ;top:100px; left:335px; height:100px;" src="{{ url_for('static', filename='/pic/upload-icon.png') }}" alt="Sample Image">
+                </div>
+                <!-- /画面左上のコンテナ-->
+                 <!-- 矢印Arrow-->
+                <img style="transform: rotate(160deg); position:absolute ;top:0px; left:470px; height:100px;" src="{{ url_for('static', filename='/pic/arrow.png') }}" alt="Sample Image">
+
+                
+                <!-- サンプル生成に関する説明-->
+                <div class="body-element-background" style="position relative;top: 90px; left: 500px; width: 450px; height: 200px;"></div>
+                    <div><p class='body-minititle' style="top:95px; left:515px ;font-size: 30px; font-family: serif;">生成したサンプルを聴く</p></div>
+                    <audio style="position:absolute ;top:160px; left:520px" controls src="{{ url_for('static', filename='sample-example.wav') }}"></audio>
+                    <img style="position:absolute ;top:170px; left:830px; height:100px;" src="{{ url_for('static', filename='/pic/headphone.png') }}" alt="Sample Image">
+                    <div><p class='body-minititle' style="top:235px; left:515px ;font-size: 30px; font-family: serif;">音程をチェック</p></div>
+
+                <!-- 矢印Arrow-->
+                <img style="transform: rotate(300deg); position:absolute ;top:280px; left:470px; height:100px;" src="{{ url_for('static', filename='/pic/arrow.png') }}" alt="Sample Image">
+
+                <!-- サンプル生成に関する説明-->
+                <div class="body-element-background" style="position relative;top: 240px; left: 10px; width: 450px; height: 150px;">
+                    <div><p class='body-minititle' style="top:5px; left:15px ;font-size: 30px; font-family: serif;">長い音楽を生成する</p></div>
+                    <img style="position:absolute ;top:10px; left:100px; height:180px;" src="{{ url_for('static', filename='/pic/notes.png') }}" alt="Sample Image">
+                </div>
+            
             </div>
         </div>
 
@@ -43,18 +70,17 @@
             </div>
         </div>
 
-        <button onclick="SendSome()" >何か送る</button>
-
-        <div class="textimage">
-            <img src="{{ url_for('static', filename='text.png') }}" height=50>
-        </div>
-
-        <div class="upload-container">
-            
-            <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
-                <input type="file" id="audioFile" name="audioFile" accept=".wav">
-                <button onclick="ApploadButtonPushed()" id="submitButton" type="submit">Upload</button>
-            </form>
+        <!--　フォーム送信付近のスタイル -->
+        <div class="form-container">
+            <div class="textimage">
+                <p style="font-size:25px;">こちらに音声ファイルをアップロードしてください <span style="color:red;">※wav限定です</span></p>
+            </div>
+            <div class="upload-container">
+                <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                    <input class="file-input" type="file" id="audioFile" name="audioFile" accept=".wav">
+                    <button class="btn-submit" onclick="ApploadButtonPushed()" id="submitButton" type="submit">サンプルを生成する</button>
+                </form>
+            </div>
         </div>
 
             <!-- モーダルの構造 -->
@@ -79,9 +105,9 @@
                     恐れ入りますが、しばらく時間をおいてから再度お試しください。
                     <br>また、音声ファイルが正式なWAV形式であることをご確認ください。
                 </div>
-            </div> <!-- .modal-content の閉じタグが必要 -->
-        </div> <!-- .modal の閉じタグが必要 -->
-        <!-- 外部JavaScriptの読み込み -->
+            </div>
+        </div> 
+
 
         <div id="SampleCheck" class="modal">
             <div class="modal-content-large">
